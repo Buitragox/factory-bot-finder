@@ -10,6 +10,8 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
+				"${workspaceFolder}/src/test/test-project/",
+				"${workspaceFolder}/src/test/test-project/spec/models/user_spec.rb",
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
 			"outFiles": [
