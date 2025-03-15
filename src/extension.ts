@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { factoryDefinitionProvider } from './factory_definition';
 //import { ExtensionContext, window, languages, commands } from 'vscode';
 
 // This method is called when your extension is activated
@@ -30,50 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(hoverDisposable);
 
-	const defDisp = vscode.languages.registerDefinitionProvider({ language: 'ruby', scheme: 'file' }, {
-		async provideDefinition(document, position, token) {
-			// Check for build or create followed by a symbol
-			// e.g. `build(:user)` or `create :user`
-			const wordRange = document.getWordRangeAtPosition(position, /\b(build|create)\b[\s|(]:[\w]+/);
-			if (!wordRange) {
-				return;
-			}
-
-			// Check if the word is build or create
-			const word = document.getText(wordRange);
-			const method_name = word.match(/build|create/)![0];
-			// Create a new start point for the range, so we only get the symbol
-			const start = new vscode.Position(wordRange.start.line, wordRange.start.character + method_name.length + 1);
-			// If cursor is not on the symbol, do nothing. We don't want to match the method name
-			if (position.character < start.character) {
-				return;
-			}
-
-			const factory_name = word.slice(method_name.length + 2);
-			const newWordRange = new vscode.Range(start, wordRange.end);
-			console.log("position:", position.character);
-			console.log("newWordRange:", newWordRange.start.character, newWordRange.end.character);
-
-			const files = await vscode.workspace.findFiles('spec/factories/**/*.rb');
-			console.log("files:", files);
-			for (const file of files) {
-				const doc = await vscode.workspace.openTextDocument(file);
-				const text = doc.getText();
-
-				const start = text.indexOf(`factory :${factory_name}`);
-				if (start === -1) {
-					continue;
-				}
-
-				const skip = 'factory :'.length;
-				const position = doc.positionAt(start + skip);
-				const wordRange = doc.getWordRangeAtPosition(position)!;
-				console.log("FOUND!");
-				return new vscode.Location(doc.uri, wordRange);
-			}
-			console.log("NOT FOUND!");
-		}
-	});
+	const defDisp = vscode.languages.registerDefinitionProvider({ language: 'ruby', scheme: 'file' }, factoryDefinitionProvider);
 
 	// TODO: add better workspace detection before susbcribing
 	// vscode.workspace.workspaceFolders seems like a good starting point
