@@ -12,7 +12,8 @@
 			"args": [
 				"${workspaceFolder}/src/test/test-project/",
 				"${workspaceFolder}/src/test/test-project/spec/models/user_spec.rb",
-				"--extensionDevelopmentPath=${workspaceFolder}"
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--disable-extensions"
 			],
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
