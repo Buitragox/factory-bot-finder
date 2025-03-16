@@ -15,6 +15,8 @@ async function findLocations(factoryName: string): Promise<Location | undefined>
         const doc = await workspace.openTextDocument(file);
         const text = doc.getText();
 
+        // TODO: this should look for every match in the file.
+        // There can be multiple factories in a single file.
         const start = text.indexOf(`factory :${factoryName} `);
         if (start === -1) {
             continue;
