@@ -1,6 +1,7 @@
 # Factory Bot Finder
 
-> [!WARNING] Work In Progress.
+> [!WARNING]
+> Work In Progress.
 > The extension is in an usable state but bugs and missing features are expected.
 
 An extension that allows you to use "Go To Definition" on FactoryBot factory methods.
