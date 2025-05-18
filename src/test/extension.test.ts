@@ -59,7 +59,6 @@ suite('Extension Test Suite', () => {
 
 		const specUri = specs['user'];
 		const specDoc = await vscode.workspace.openTextDocument(specUri);
-		vscode.window.showTextDocument(specDoc);
 
 		// Find the position of the factory name in the spec
 		const factoryNamePos = new vscode.Position(1, 27); // Line with "build(:user)" at position of "user"
@@ -71,16 +70,38 @@ suite('Extension Test Suite', () => {
 		// Check if the definition points to our factory file
 		const definition = definitions[0];
 		assert.strictEqual(definition.uri.fsPath, testFactoryUri.fsPath);
-		assert.ok(definition.range);
+		assert.deepStrictEqual(definition.range, new vscode.Range(1, 11, 1, 15));
 	});
 
 	// test('finds factory definition for create', () => {
 	// });
 
-	// test('does not find factory definition for non-existent factory', () => {
-	// });
+	test('does not find factory definition for non-existent factory', async () => {
+		const specUri = specs['user'];
+		const specDoc = await vscode.workspace.openTextDocument(specUri);
 
-	// test('Should handle alternative syntax: create :user'
+		// Find the position of the factory name in the spec
+		const factoryNamePos = new vscode.Position(6, 27); // Line with "build(:user)" at position of "user"
 
-	// test('Should not find definition when cursor is on method name',
+		const definitions = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', specDoc.uri, factoryNamePos)) as vscode.Location[];
+		assert.strictEqual(definitions.length, 0);
+	});
+
+	test('handles alternative syntax `create :user`', async () => {
+		const specUri = specs['user'];
+		const specDoc = await vscode.workspace.openTextDocument(specUri);
+
+		// Find the position of the factory name in the spec
+		const factoryNamePos = new vscode.Position(3, 24); // Line with "create :user" at position of "user"
+
+		const definitions = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', specDoc.uri, factoryNamePos)) as vscode.Location[];
+		// Factory file in the filesystem
+		const testFactoryUri = factories['user'];
+
+		// Check if the definition points to our factory file
+		const definition = definitions[0];
+		assert.strictEqual(definition.uri.fsPath, testFactoryUri.fsPath);
+		assert.ok(definition.range);
+		assert.deepStrictEqual(definition.range, new vscode.Range(1, 11, 1, 15));
+	});
 });
