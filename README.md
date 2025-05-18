@@ -24,30 +24,32 @@ This extension contributes the following settings:
 
 ## TODO list / Known Issues
 
-- Use a syntax-tree instead of *dirty* regex.
+- [x] Use a syntax-tree instead of *dirty* regex.
 
-- More tests, more test cases and complex scenarios. Similar factory names.
+- [ ] More tests, more test cases and complex scenarios. Similar factory names.
 
-- It scans for factories every time you try to find definitions.
+- [ ] It scans for factories every time you try to find definitions.
 Maybe adding an index to save definitions that have already been found?
     - What would happen if a factory is moved? Is there a way to tell the extension to update the factories location?
     - What happens if the factory file is edited and the location inside the file changes?
     - Scanning every time ensures that it finds the correct thing but it could have performance issues.
     - Is it worth adding an index? Would need to do some performance testing in some way.
 
-- Refine when the extension should be activated.
+- [ ] Refine when the extension should be activated.
 
-- It can confuse factories with similar names (e.g. `:user` and `:user_admin`).
+- [x] Fixed: It can confuse factories with similar names (e.g. `:user` and `:user_admin`).
 
-- The factory scanning could be refined to look first for a file with the same name as the factory.
+- [ ] The factory scanning could be refined to look first for a file with the same name as the factory.
 
-- Need to check what the cancellation token is used for.
+- [ ] Need to check what the cancellation token is used for.
 
-- Add support for other factory methods and the `parent:` option.
+- [ ] Add support for other factory methods.
 
-- Add support for `test/factories/` directory.
+- [ ] Add support for `parent:` option.
 
-- Add GitHub actions to run the tests.
+- [ ] Add support for `test/factories/` directory.
+
+- [ ] Add GitHub actions to run the tests.
 
 ## Testing
 

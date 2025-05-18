@@ -7,26 +7,39 @@ import {
     CancellationToken,
     Definition,
 } from "vscode";
+import Parser from "tree-sitter";
+import Ruby from "tree-sitter-ruby";
+
+const FACTORY_METHODS = [
+    "build",
+    "create",
+    "build_list",
+    "create_list"
+];
+const FACTORY_METHOD_REGEX = `\\b(${FACTORY_METHODS.join("|")})\\b`;
 
 async function findLocations(factoryName: string): Promise<Location | undefined> {
     const files = await workspace.findFiles("spec/factories/**/*.rb");
-    console.log("files:", files);
+    const parser = new Parser();
+    parser.setLanguage(Ruby);
+
     for (const file of files) {
         const doc = await workspace.openTextDocument(file);
         const text = doc.getText();
 
-        const start = text.indexOf(`factory :${factoryName} `);
-        if (start === -1) {
-            continue;
+        const tree = parser.parse(text);
+        const symbols = tree.rootNode.descendantsOfType('simple_symbol');
+        for (const symbol of symbols) {
+            const name = symbol.text.slice(1);
+            if (name === factoryName) {
+                const position = doc.positionAt(symbol.startIndex + 1);
+                const wordRange = doc.getWordRangeAtPosition(position)!;
+                console.log(`Found :${factoryName} in ${file.fsPath} at ${position.line}:${position.character}`);
+                return new Location(doc.uri, wordRange);
+            }
         }
-
-        const skip = "factory :".length;
-        const position = doc.positionAt(start + skip);
-        const wordRange = doc.getWordRangeAtPosition(position)!;
-        console.log("FOUND!");
-        return new Location(doc.uri, wordRange);
     }
-    console.log("NOT FOUND!");
+    console.log(`No match for ${factoryName}`);
     return;
 }
 
@@ -36,33 +49,30 @@ export const factoryDefinitionProvider: DefinitionProvider = {
         position: Position,
         token: CancellationToken
     ): Promise<Definition | undefined> {
-        console.log("Factory definition provider activated");
-        // Check for build or create followed by a symbol
-        // e.g. `build(:user)` or `create :user`
+        // Check for a factory method name followed by a symbol
         const wordRange = document.getWordRangeAtPosition(
             position,
-            /\b(build|create)\b[\s|(]:[\w]+/
+            new RegExp(`${FACTORY_METHOD_REGEX}[\\s|\\(]:[\\w]+`)
         );
         if (!wordRange) {
             return;
         }
 
-        // Check if the word is build or create
+        // Check which factory method is used
         const word = document.getText(wordRange);
-        const method_name = word.match(/build|create/)![0];
+        const methodName = word.match(new RegExp(FACTORY_METHOD_REGEX))![0];
+
         // Create a new start point for the range, so we only get the symbol
         const start = new Position(
             wordRange.start.line,
-            wordRange.start.character + method_name.length + 1
+            wordRange.start.character + methodName.length + 1
         );
         // If cursor is not on the symbol, do nothing. We don't want to match the method name
         if (position.character < start.character) {
             return;
         }
 
-        console.log('Looking for locations');
-
-        const factoryName = word.slice(method_name.length + 2);
+        const factoryName = word.slice(methodName.length + 2);
         return findLocations(factoryName);
     }
 };

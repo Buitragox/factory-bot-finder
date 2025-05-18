@@ -71,6 +71,7 @@ suite('Extension Test Suite', () => {
 		// Check if the definition points to our factory file
 		const definition = definitions[0];
 		assert.strictEqual(definition.uri.fsPath, testFactoryUri.fsPath);
+		assert.ok(definition.range);
 	});
 
 	// test('finds factory definition for create', () => {

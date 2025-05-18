@@ -39,5 +39,9 @@
     "@vscode/test-electron": "^2.4.1",
     "eslint": "^9.21.0",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-ruby": "^0.23.1"
   }
 }
