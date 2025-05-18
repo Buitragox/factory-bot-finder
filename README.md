@@ -24,6 +24,8 @@ This extension contributes the following settings:
 
 ## TODO list / Known Issues
 
+- Use a syntax-tree instead of *dirty* regex.
+
 - More tests, more test cases and complex scenarios. Similar factory names.
 
 - It scans for factories every time you try to find definitions.
@@ -42,6 +44,20 @@ Maybe adding an index to save definitions that have already been found?
 - Need to check what the cancellation token is used for.
 
 - Add support for other factory methods and the `parent:` option.
+
+- Add support for `test/factories/` directory.
+
+- Add GitHub actions to run the tests.
+
+## Testing
+
+I think there's like 3 ways to run the test suite.
+
+```sh
+npm test
+npm run test
+npx vscode-test
+```
 
 <!-- ## Release Notes
 
