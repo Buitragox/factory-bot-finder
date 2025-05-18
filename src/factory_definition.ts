@@ -14,15 +14,15 @@ const FACTORY_METHODS = [
     "build",
     "create",
     "build_list",
-    "create_list"
+    "create_list",
+    "build_stubbed",
 ];
-const FACTORY_METHOD_REGEX = `\\b(${FACTORY_METHODS.join("|")})\\b`;
+
+const parser = new Parser();
+parser.setLanguage(Ruby);
 
 async function findLocations(factoryName: string): Promise<Location | undefined> {
     const files = await workspace.findFiles("spec/factories/**/*.rb");
-    const parser = new Parser();
-    parser.setLanguage(Ruby);
-
     for (const file of files) {
         const doc = await workspace.openTextDocument(file);
         const text = doc.getText();
@@ -30,11 +30,11 @@ async function findLocations(factoryName: string): Promise<Location | undefined>
         const tree = parser.parse(text);
         const symbols = tree.rootNode.descendantsOfType('simple_symbol');
         for (const symbol of symbols) {
-            const name = symbol.text.slice(1);
+            const name = symbol.text;
             if (name === factoryName) {
                 const position = doc.positionAt(symbol.startIndex + 1);
                 const wordRange = doc.getWordRangeAtPosition(position)!;
-                console.log(`Found :${factoryName} in ${file.fsPath} at ${position.line}:${position.character}`);
+                console.log(`Found ${factoryName} in ${file.fsPath} at ${position.line}:${position.character}`);
                 return new Location(doc.uri, wordRange);
             }
         }
@@ -49,30 +49,18 @@ export const factoryDefinitionProvider: DefinitionProvider = {
         position: Position,
         token: CancellationToken
     ): Promise<Definition | undefined> {
-        // Check for a factory method name followed by a symbol
-        const wordRange = document.getWordRangeAtPosition(
-            position,
-            new RegExp(`${FACTORY_METHOD_REGEX}[\\s|\\(]:[\\w]+`)
-        );
-        if (!wordRange) {
+        const tree = parser.parse(document.getText());
+        const syntaxNode = tree.rootNode.descendantForPosition({ row: position.line, column: position.character });
+        if (syntaxNode.type !== "simple_symbol") {
             return;
         }
 
-        // Check which factory method is used
-        const word = document.getText(wordRange);
-        const methodName = word.match(new RegExp(FACTORY_METHOD_REGEX))![0];
-
-        // Create a new start point for the range, so we only get the symbol
-        const start = new Position(
-            wordRange.start.line,
-            wordRange.start.character + methodName.length + 1
-        );
-        // If cursor is not on the symbol, do nothing. We don't want to match the method name
-        if (position.character < start.character) {
+        const methodName = syntaxNode.parent?.previousSibling?.text;
+        if (!methodName || !FACTORY_METHODS.includes(methodName)) {
             return;
         }
 
-        const factoryName = word.slice(methodName.length + 2);
+        const factoryName = syntaxNode.text;
         return findLocations(factoryName);
     }
 };
