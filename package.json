@@ -2,7 +2,7 @@
   "name": "factory-bot-finder",
   "displayName": "Factory Bot Finder",
   "description": "GoToDefinition for FactoryBot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "Buitragox",
   "engines": {
     "vscode": "^1.98.0"
