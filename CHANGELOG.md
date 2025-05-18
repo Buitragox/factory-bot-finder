@@ -7,3 +7,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 
 - Initial release
+
+## [0.0.2] - 2025-05-18
+
+### Fixed
+
+- Fix issue where the definition provider would incorrecty find the definition in the wrong file
+if the factory was used in a different factory.
+
+## [0.0.1] - 2025-05-17
+
+### Added
+
+- Initial release with basic functionality
+- Support for finding FactoryBot factories

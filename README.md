@@ -1,17 +1,17 @@
 # Factory Bot Finder
 
-> [!WARNING]
-> Work In Progress
+> [!WARNING] Work In Progress.
+> The extension is in an usable state but bugs and missing features are expected.
 
-An extension that allows you to use "Go To Definition" on FactoryBots factory methods.
+An extension that allows you to use "Go To Definition" on FactoryBot factory methods.
 
 ## Features
 
-This extension scans your `spec/factories/` directory to find a definition for your factories.
+This extension scans your `spec/factories/` directory to find a definition for your factories using tree-sitter.
 
 ## Extension Settings
 
-No settings for now. Not sure if settings are even necessary.
+No settings for now.
 
 <!-- Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
 
@@ -26,13 +26,12 @@ This extension contributes the following settings:
 
 - [x] Use a syntax-tree instead of *dirty* regex.
 
-- [ ] More tests, more test cases and complex scenarios. Similar factory names.
+- [ ] More tests cases and complex scenarios.
 
-- [ ] It scans for factories every time you try to find definitions.
-Maybe adding an index to save definitions that have already been found?
+- [ ] Scanning every time ensures that it finds the correct thing but it could have performance issues.
+    - Maybe adding an index to save definitions that have already been found?
     - What would happen if a factory is moved? Is there a way to tell the extension to update the factories location?
     - What happens if the factory file is edited and the location inside the file changes?
-    - Scanning every time ensures that it finds the correct thing but it could have performance issues.
     - Is it worth adding an index? Would need to do some performance testing in some way.
 
 - [ ] Refine when the extension should be activated.
