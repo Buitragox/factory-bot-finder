@@ -31,12 +31,19 @@ async function findLocations(factoryName: string): Promise<Location | undefined>
         const symbols = tree.rootNode.descendantsOfType('simple_symbol');
         for (const symbol of symbols) {
             const name = symbol.text;
-            if (name === factoryName) {
-                const position = doc.positionAt(symbol.startIndex + 1);
-                const wordRange = doc.getWordRangeAtPosition(position)!;
-                console.log(`Found ${factoryName} in ${file.fsPath} at ${position.line}:${position.character}`);
-                return new Location(doc.uri, wordRange);
+            if (name !== factoryName) {
+                continue;
             }
+
+            const identifier = symbol.parent?.previousSibling?.text;
+            if (!identifier || identifier !== "factory") {
+                continue;
+            }
+
+            const position = doc.positionAt(symbol.startIndex + 1);
+            const wordRange = doc.getWordRangeAtPosition(position)!;
+            console.log(`Found ${factoryName} in ${file.fsPath} at ${position.line}:${position.character}`);
+            return new Location(doc.uri, wordRange);
         }
     }
     console.log(`No match for ${factoryName}`);
