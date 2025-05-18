@@ -1,10 +1,15 @@
 {
   "name": "factory-bot-finder",
   "displayName": "Factory Bot Finder",
-  "description": "Go to definition of a FactoryBot factory",
+  "description": "GoToDefinition for FactoryBot",
   "version": "0.0.1",
+  "publisher": "Buitragox",
   "engines": {
     "vscode": "^1.98.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Buitragox/factory-bot-finder"
   },
   "categories": [
     "Other"
@@ -14,12 +19,7 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "factory-bot-finder.helloWorld",
-        "title": "Hello and Goodbye"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -37,6 +37,7 @@
     "@typescript-eslint/parser": "^8.25.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.4.0",
     "eslint": "^9.21.0",
     "typescript": "^5.7.3"
   },
