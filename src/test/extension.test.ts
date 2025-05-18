@@ -2,13 +2,20 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-suite('Extension Test Suite', async () => {
+interface UriMap {
+	[key: string]: vscode.Uri;
+}
+
+suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 	let workspaceUri: vscode.Uri;
-	let specUris: vscode.Uri[];
-	let factoriesUris: vscode.Uri[];
+	let specs: UriMap = {}; // Map of spec names to their URIs
+	let factories: UriMap = {}; // Map of factory names to their URIs
 
 	suiteSetup(async () => {
+		// HACK: Without this, the extension is not activated and the factory definition provider is not registered.
+		await vscode.extensions.getExtension('undefined_publisher.factory-bot-finder')!.activate();
+
 		const folders = vscode.workspace.workspaceFolders;
 		if (!folders) {
 			throw new Error('No workspace folders found');
@@ -16,47 +23,63 @@ suite('Extension Test Suite', async () => {
 
 		workspaceUri = folders[0].uri;
 
-		specUris = await vscode.workspace.findFiles('spec/**/*spec.rb');
+		const specUris = await vscode.workspace.findFiles('spec/**/*spec.rb');
 		if (specUris.length === 0) {
 			throw new Error('No spec.rb files found in the workspace');
 		}
 
-		factoriesUris = await vscode.workspace.findFiles('spec/factories/**/*.rb');
+		specUris.forEach((specUri) => {
+			const specName = path.basename(specUri.fsPath, '_spec.rb');
+			specs[specName] = specUri;
+		});
+
+		const factoriesUris = await vscode.workspace.findFiles('spec/factories/**/*.rb');
 		if (factoriesUris.length === 0) {
 			throw new Error('No factory.rb files found in the workspace');
 		}
+
+		factoriesUris.forEach((factoryUri) => {
+			const factoryName = path.basename(factoryUri.fsPath, '.rb');
+			factories[factoryName] = factoryUri;
+		});
 	});
 
-	// Clean up after tests
 	suiteTeardown(() => {
 	});
 
-	// test('Extension is activated', async () => {
-	// 	// Wait for the extension to activate
-	// 	await new Promise(f => setTimeout(f, 5000));
-	// 	assert.equal(true, true);
+	// The important thing is to check that we can find the factory definition
+	// for a given factory name.
+	// So given a mouse position, the definitionProvider should return the location
+	// of the factory definition in the spec/factories directory.
+	test('finds factory definition for build', async () => {
+		// Give the mouse position to the factory definition provider
+		// How should I get the mouse position? Scan the spec files?
+		// Look for build(:factory) in the spec files
+		// Should I have a list of factory names to test against?
+
+		const specUri = specs['user'];
+		const specDoc = await vscode.workspace.openTextDocument(specUri);
+		vscode.window.showTextDocument(specDoc);
+
+		// Find the position of the factory name in the spec
+		const factoryNamePos = new vscode.Position(1, 27); // Line with "build(:user)" at position of "user"
+
+		const definitions = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', specDoc.uri, factoryNamePos)) as vscode.Location[];
+		// Factory file in the filesystem
+		const testFactoryUri = factories['user'];
+
+		// Check if the definition points to our factory file
+		const definition = definitions[0];
+		assert.strictEqual(definition.uri.fsPath, testFactoryUri.fsPath);
+	});
+
+	// test('finds factory definition for create', () => {
 	// });
 
-	describe('Factory Bot Finder', () => {
-		// The important thing is to check that we can find the factory definition
-		// for a given factory name.
-		// So given a mouse position, the definitionProvider should return the location
-		// of the factory definition in the spec/factories directory.
-		test('finds factory definition for build', () => {
-			// Give the mouse position to the factory definition provider
-			// How should I get the mouse position? Scan thorough the spec files?
-			// Look for build(:factory) in the spec files
-			// Should I have a list of factory names to test against?
-		});
+	// test('does not find factory definition for non-existent factory', () => {
+	// });
 
-		// test('finds factory definition for create', () => {
-		// });
+	// test('Should handle alternative syntax: create :user'
 
-		// test('does not find factory definition for non-existent factory', () => {
-		// });
-
-		// test('Should handle alternative syntax: create :user'
-
-		//test('Should not find definition when cursor is on method name',
-	});
+	// test('Should not find definition when cursor is on method name',
 });

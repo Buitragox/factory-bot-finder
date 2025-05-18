@@ -36,6 +36,7 @@ export const factoryDefinitionProvider: DefinitionProvider = {
         position: Position,
         token: CancellationToken
     ): Promise<Definition | undefined> {
+        console.log("Factory definition provider activated");
         // Check for build or create followed by a symbol
         // e.g. `build(:user)` or `create :user`
         const wordRange = document.getWordRangeAtPosition(
@@ -58,6 +59,8 @@ export const factoryDefinitionProvider: DefinitionProvider = {
         if (position.character < start.character) {
             return;
         }
+
+        console.log('Looking for locations');
 
         const factoryName = word.slice(method_name.length + 2);
         return findLocations(factoryName);
